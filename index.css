@@ -1,13 +1,13 @@
-/* --- General Styles & Dark Theme --- */
+/* --- General Styles & Casual Theme --- */
 :root {
-  --primary-color: #2E7D32; /* A shade of green */
-  --primary-hover-color: #388E3C;
-  --background-color: #121212;
-  --surface-color: #1e1e1e;
-  --text-color: #e0e0e0;
-  --text-secondary-color: #b0b0b0;
-  --border-color: #444;
-  --error-color: #e57373;
+  --primary-color: #007bff; /* A friendly blue */
+  --primary-hover-color: #0056b3;
+  --background-color: #f8f9fa; /* Light grey background */
+  --surface-color: #ffffff; /* White card background */
+  --text-color: #212529; /* Dark text */
+  --text-secondary-color: #6c757d; /* Lighter grey text */
+  --border-color: #dee2e6;
+  --error-color: #dc3545;
 }
 
 body {
@@ -40,6 +40,14 @@ p {
     margin: 0 auto 30px auto;
 }
 
+.developer-credit {
+    font-size: 1rem;
+    color: var(--text-secondary-color);
+    margin-top: -25px;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
 /* Visually hide content, but keep it accessible */
 .sr-only {
   position: absolute;
@@ -51,6 +59,66 @@ p {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+
+/* --- Context Selector --- */
+.context-selector {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.context-selector input[type="radio"] {
+    display: none; /* Hide the actual radio button */
+}
+
+.context-selector label {
+    background-color: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary-color);
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.context-selector label:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.context-selector input[type="radio"]:checked + label {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--surface-color);
+    font-weight: bold;
+}
+
+/* --- Text Input --- */
+.input-container {
+    margin: 0 auto 30px auto;
+    max-width: 400px;
+}
+
+#prompt-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+#prompt-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
 }
 
 
@@ -83,7 +151,7 @@ input[type="file"] {
 
 .custom-file-upload:hover {
     background-color: var(--primary-color);
-    color: var(--background-color);
+    color: var(--surface-color);
 }
 
 #apply-button {
@@ -99,8 +167,8 @@ input[type="file"] {
 }
 
 #apply-button:disabled {
-    background-color: #555;
-    color: #888;
+    background-color: #6c757d;
+    color: #f8f9fa;
     cursor: not-allowed;
     opacity: 0.7;
 }
@@ -123,9 +191,21 @@ input[type="file"] {
     min-width: 300px;
     max-width: 450px;
     background-color: var(--surface-color);
-    border: 1px dashed var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.image-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.image-header h2 {
+    margin: 0;
 }
 
 .image-container h2 {
@@ -151,9 +231,28 @@ input[type="file"] {
 }
 
 .placeholder-text {
-  color: #666;
+  color: #6c757d;
   font-style: italic;
 }
+
+.download-btn {
+    border: 2px solid var(--primary-color);
+    padding: 8px 18px;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--primary-color);
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--surface-color);
+}
+
 
 /* --- Loader & Messages --- */
 .loader {
@@ -173,7 +272,7 @@ input[type="file"] {
 
 .error-message {
   color: var(--error-color);
-  background-color: rgba(229, 115, 115, 0.1);
+  background-color: rgba(220, 53, 69, 0.1);
   border: 1px solid var(--error-color);
   padding: 10px;
   border-radius: 8px;

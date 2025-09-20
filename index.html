@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Master Saad Thahim</title>
+  <title>Image Editing Tool</title>
   <link rel="stylesheet" href="index.css">
   <script type="importmap">
     {
@@ -12,19 +12,34 @@
       }
     }
   </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
   <main>
-    <h1>AI Uniform Editor</h1>
-    <p>Upload a photo of a person, and the AI will add a Pakistan army uniform.</p>
+    <h1>Image Editing Tool</h1>
+    <p class="developer-credit">Developer: Saad Thahim</p>
+    <p>Upload a photo of a person, and the AI will edit it.</p>
+
+    <div class="context-selector">
+      <input type="radio" id="context-clothes" name="context" value="clothes" checked>
+      <label for="context-clothes">Clothes</label>
+      
+      <input type="radio" id="context-celebrity" name="context" value="celebrity">
+      <label for="context-celebrity">Celebrity</label>
+
+      <input type="radio" id="context-background" name="context" value="background">
+      <label for="context-background">Background</label>
+    </div>
+
+    <div id="text-input-container" class="input-container" style="display: none;">
+      <input type="text" id="prompt-input" placeholder="Enter details...">
+    </div>
 
     <div class="controls">
       <label for="file-upload" class="custom-file-upload">
         Choose Image
       </label>
       <input id="file-upload" type="file" accept="image/*"/>
-      <button id="apply-button" disabled aria-label="Add uniform to the uploaded image">Add Uniform</button>
+      <button id="apply-button" disabled aria-label="Add uniform to the uploaded image">Apply Edit</button>
     </div>
 
     <div id="loader" class="loader" style="display: none;" role="status" aria-live="polite">
@@ -42,15 +57,18 @@
         </div>
       </div>
       <div class="image-container">
-        <h2>Edited</h2>
+        <div class="image-header">
+          <h2>Edited</h2>
+          <a id="download-button" class="download-btn" href="#" download="uniform-edit.png" style="display: none;" aria-label="Download edited image">Download</a>
+        </div>
          <div class="image-content">
           <img id="edited-image" src="#" alt="Image edited by AI with a uniform" style="display: none;"/>
           <p id="edited-placeholder" class="placeholder-text">The edited image will appear here</p>
+          <canvas id="watermark-canvas" style="display: none;"></canvas>
         </div>
       </div>
     </div>
   </main>
   <script type="module" src="index.tsx"></script>
-<script type="module" src="/index.tsx"></script>
 </body>
 </html>
