@@ -1,0 +1,6 @@
+{
+  "name": "Image Animator",
+  "description": "Bring your static images to life! Upload an image and provide a prompt to generate a short animation using AI.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
