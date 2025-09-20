@@ -14,13 +14,10 @@ const applyButton = document.getElementById('apply-button') as HTMLButtonElement
 const downloadButton = document.getElementById('download-button') as HTMLAnchorElement;
 const loader = document.getElementById('loader') as HTMLDivElement;
 const errorMessage = document.getElementById('error-message') as HTMLParagraphElement;
-const contextRadios = document.querySelectorAll('input[name="context"]') as NodeListOf<HTMLInputElement>;
-const promptInput = document.getElementById('prompt-input') as HTMLInputElement;
 
 
 // --- State Management ---
 let selectedFile: File | null = null;
-let selectedContext: 'clothes' | 'celebrity' | 'background' = 'clothes';
 
 
 // --- Helper Functions ---
@@ -42,8 +39,7 @@ function fileToBase64(file: File): Promise<string> {
  * Checks conditions and updates the disabled state of the apply button.
  */
 function updateButtonState() {
-  const isTextInputFilled = promptInput.value.trim() !== '';
-  applyButton.disabled = !selectedFile || !isTextInputFilled;
+  applyButton.disabled = !selectedFile;
 }
 
 /**
@@ -94,28 +90,6 @@ fileInput.addEventListener('change', (event) => {
   }
 });
 
-contextRadios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    selectedContext = radio.value as 'clothes' | 'celebrity' | 'background';
-    promptInput.value = ''; // Clear input on context change
-
-    switch (selectedContext) {
-      case 'clothes':
-        promptInput.placeholder = 'Describe the clothing...';
-        break;
-      case 'celebrity':
-        promptInput.placeholder = 'Enter celebrity name...';
-        break;
-      case 'background':
-        promptInput.placeholder = 'Describe the background...';
-        break;
-    }
-    updateButtonState();
-  });
-});
-
-promptInput.addEventListener('input', updateButtonState);
-
 
 applyButton.addEventListener('click', async () => {
   if (!selectedFile) {
@@ -133,21 +107,11 @@ applyButton.addEventListener('click', async () => {
   try {
     const base64Image = await fileToBase64(selectedFile);
     
-    // Construct the prompt dynamically
-    let promptText = '';
-    const inputValue = promptInput.value.trim();
+    // Get selected destination
+    const selectedDestination = (document.querySelector('input[name="destination"]:checked') as HTMLInputElement)?.value || 'Kaaba';
 
-    switch (selectedContext) {
-      case 'clothes':
-        promptText = `Change the clothes of the person in the image to be: ${inputValue}. Ensure the result is a high-quality, realistic photo.`;
-        break;
-      case 'celebrity':
-        promptText = `Add the celebrity "${inputValue}" standing next to the person in this image. Do not change the original person. The result should be a high-quality, realistic photo.`;
-        break;
-      case 'background':
-        promptText = `Change only the background of this image to: ${inputValue}. Do not change the person or their clothes. The result should be a high-quality, realistic photo.`;
-        break;
-    }
+    // Dynamically create prompt
+    const promptText = `Take the person in the image and place them in front of the ${selectedDestination} in Saudi Arabia. The person should be wearing Ihram (ehram).`;
 
     const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
     
@@ -179,77 +143,17 @@ applyButton.addEventListener('click', async () => {
         if (part.inlineData) {
           const editedBase64 = part.inlineData.data;
           const mimeType = part.inlineData.mimeType;
-  
-          const canvas = document.getElementById('watermark-canvas') as HTMLCanvasElement;
-          const ctx = canvas.getContext('2d');
-  
-          if (ctx) {
-              const img = new Image();
-              img.onload = () => {
-                  // Set canvas size to image size
-                  canvas.width = img.width;
-                  canvas.height = img.height;
-  
-                  // 1. Draw the original edited image
-                  ctx.drawImage(img, 0, 0);
-  
-                  // 2. Draw BOLD diagonal lines
-                  ctx.strokeStyle = 'rgba(80, 80, 80, 0.6)';
-                  ctx.lineWidth = 4;
-                  const step = 40;
-                  for (let i = -canvas.height; i < canvas.width; i += step) {
-                      ctx.beginPath();
-                      ctx.moveTo(i, 0);
-                      ctx.lineTo(i + canvas.height, canvas.height);
-                      ctx.stroke();
-                  }
-  
-                  // 3. Draw a more realistic "PAIDZ" stamp
-                  const centerX = canvas.width / 2;
-                  const centerY = canvas.height / 2;
-                  const radius = Math.min(canvas.width, canvas.height) / 4;
-  
-                  // Save context for rotation
-                  ctx.save();
-                  ctx.translate(centerX, centerY);
-                  ctx.rotate(-Math.PI / 12); // Rotate by -15 degrees
-  
-                  // Stamp styles
-                  const stampColor = 'rgba(211, 47, 47, 0.75)'; // A strong, slightly transparent red
-                  ctx.strokeStyle = stampColor;
-                  ctx.fillStyle = stampColor;
-                  ctx.lineWidth = radius / 12; // Proportional border width
-  
-                  // Draw the stamp circle border
-                  ctx.beginPath();
-                  ctx.arc(0, 0, radius, 0, 2 * Math.PI);
-                  ctx.stroke();
-  
-                  // Draw the "PAIDZ" text
-                  ctx.font = `bold ${radius / 1.5}px 'Impact', 'Arial Black', sans-serif`;
-                  ctx.textAlign = 'center';
-                  ctx.textBaseline = 'middle';
-                  ctx.fillText('PAIDZ', 0, 0);
-                  
-                  // Restore context to remove rotation
-                  ctx.restore();
-  
-                  // 4. Update the visible image element and download button
-                  const finalImageDataUrl = canvas.toDataURL(mimeType);
-                  editedImage.src = finalImageDataUrl;
-                  editedImage.style.display = 'block';
-                  editedPlaceholder.style.display = 'none';
-  
-                  downloadButton.href = finalImageDataUrl;
-                  downloadButton.style.display = 'inline-block';
-              };
-              img.src = `data:${mimeType};base64,${editedBase64}`;
-          } else {
-              // Fallback for if canvas fails - display original without watermark
-              editedImage.src = `data:${mimeType};base64,${editedBase64}`;
-              editedImage.style.display = 'block';
-              editedPlaceholder.style.display = 'none';
-          }
+          
+          const finalImageDataUrl = `data:${mimeType};base64,${editedBase64}`;
+
+          // Display the edited image directly
+          editedImage.src = finalImageDataUrl;
+          editedImage.style.display = 'block';
+          editedPlaceholder.style.display = 'none';
+
+          // Set up the download button
+          downloadButton.href = finalImageDataUrl;
+          downloadButton.style.display = 'inline-block';
   
           imageFound = true;
           break; 

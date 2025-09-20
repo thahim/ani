@@ -62,21 +62,27 @@ p {
   border-width: 0;
 }
 
-
-/* --- Context Selector --- */
-.context-selector {
+/* --- Destination Selector --- */
+.destination-selector {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.context-selector input[type="radio"] {
+.destination-selector .selector-title {
+    font-weight: 500;
+    color: var(--text-secondary-color);
+    margin-right: 10px;
+}
+
+.destination-selector input[type="radio"] {
     display: none; /* Hide the actual radio button */
 }
 
-.context-selector label {
+.destination-selector label {
     background-color: transparent;
     border: 2px solid var(--border-color);
     color: var(--text-secondary-color);
@@ -89,37 +95,16 @@ p {
     user-select: none;
 }
 
-.context-selector label:hover {
+.destination-selector label:hover {
     border-color: var(--primary-color);
     color: var(--primary-color);
 }
 
-.context-selector input[type="radio"]:checked + label {
+.destination-selector input[type="radio"]:checked + label {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: var(--surface-color);
     font-weight: bold;
-}
-
-/* --- Text Input --- */
-.input-container {
-    margin: 0 auto 30px auto;
-    max-width: 400px;
-}
-
-#prompt-input {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
-}
-
-#prompt-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
 }
 
 
@@ -127,6 +112,7 @@ p {
 .controls {
     margin: 40px 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 20px;
@@ -148,11 +134,16 @@ input[type="file"] {
     font-weight: bold;
     font-size: 1rem;
     transition: background-color 0.3s, color 0.3s;
+    order: 1; /* Order for flexbox */
 }
 
 .custom-file-upload:hover {
     background-color: var(--primary-color);
     color: var(--surface-color);
+}
+
+.destination-selector {
+    order: 2;
 }
 
 #apply-button {
@@ -165,6 +156,7 @@ input[type="file"] {
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.3s, opacity 0.3s;
+    order: 3;
 }
 
 #apply-button:disabled {

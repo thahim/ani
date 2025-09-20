@@ -17,29 +17,23 @@
   <main>
     <h1>Image Editing Tool</h1>
     <p class="developer-credit">Developer: Saad Thahim</p>
-    <p>Upload a photo of a person, and the AI will edit it.</p>
-
-    <div class="context-selector">
-      <input type="radio" id="context-clothes" name="context" value="clothes" checked>
-      <label for="context-clothes">Clothes</label>
-      
-      <input type="radio" id="context-celebrity" name="context" value="celebrity">
-      <label for="context-celebrity">Celebrity</label>
-
-      <input type="radio" id="context-background" name="context" value="background">
-      <label for="context-background">Background</label>
-    </div>
-
-    <div id="text-input-container" class="input-container">
-      <input type="text" id="prompt-input" placeholder="Describe the clothing...">
-    </div>
 
     <div class="controls">
       <label for="file-upload" class="custom-file-upload">
         Choose Image
       </label>
       <input id="file-upload" type="file" accept="image/*"/>
-      <button id="apply-button" disabled aria-label="Add uniform to the uploaded image">Apply Edit</button>
+      
+      <div class="destination-selector">
+        <span class="selector-title">Destination:</span>
+        <input type="radio" id="dest-kaba" name="destination" value="Kaaba" checked>
+        <label for="dest-kaba">Kaaba</label>
+        
+        <input type="radio" id="dest-madina" name="destination" value="Madina">
+        <label for="dest-madina">Madina</label>
+      </div>
+      
+      <button id="apply-button" disabled aria-label="Apply edits to the uploaded image">Apply Edit</button>
     </div>
 
     <div id="loader" class="loader" style="display: none;" role="status" aria-live="polite">
@@ -59,18 +53,17 @@
       <div class="image-container">
         <div class="image-header">
           <h2>Edited</h2>
-          <a id="download-button" class="download-btn" href="#" download="uniform-edit.png" style="display: none;" aria-label="Download edited image">Download</a>
+          <a id="download-button" class="download-btn" href="#" download="edited-image.png" style="display: none;" aria-label="Download edited image">Download</a>
         </div>
          <div class="image-content">
-          <img id="edited-image" src="#" alt="Image edited by AI with a uniform" style="display: none;"/>
+          <img id="edited-image" src="#" alt="Image edited by AI" style="display: none;"/>
           <p id="edited-placeholder" class="placeholder-text">The edited image will appear here</p>
-          <canvas id="watermark-canvas" style="display: none;"></canvas>
         </div>
       </div>
     </div>
   </main>
   <footer>
-    <img src="https://storage.googleapis.com/aai-web-samples/people/frame-7.png" alt="Profile of Saad Thahim" class="footer-image">
+    <img src="https://raw.githubusercontent.com/thahim/tribe/refs/heads/main/me.jpg" alt="Profile of Saad Thahim" class="footer-image">
   </footer>
   <script type="module" src="index.tsx"></script>
 </body>
