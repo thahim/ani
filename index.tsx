@@ -1,225 +1,133 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
- */
+*/
+import { GoogleGenAI, Modality } from '@google/genai';
 
-import { GoogleGenAI } from "@google/genai";
-
-// --- DOM Elements ---
-const imageUpload = document.getElementById('image-upload') as HTMLInputElement;
-const imagePreview = document.getElementById('image-preview') as HTMLImageElement;
-const uploadPlaceholder = document.getElementById('upload-placeholder') as HTMLDivElement;
-const promptInput = document.getElementById('prompt-input') as HTMLTextAreaElement;
-const animateBtn = document.getElementById('animate-btn') as HTMLButtonElement;
-const resultContainer = document.getElementById('result-container') as HTMLDivElement;
-const resultVideo = document.getElementById('result-video') as HTMLVideoElement;
-const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+// --- DOM Element Selection ---
+const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+const originalImage = document.getElementById('original-image') as HTMLImageElement;
+const editedImage = document.getElementById('edited-image') as HTMLImageElement;
+const originalPlaceholder = document.getElementById('original-placeholder') as HTMLParagraphElement;
+const editedPlaceholder = document.getElementById('edited-placeholder') as HTMLParagraphElement;
+const applyButton = document.getElementById('apply-button') as HTMLButtonElement;
 const loader = document.getElementById('loader') as HTMLDivElement;
-const loaderMessage = document.getElementById('loader-message') as HTMLParagraphElement;
+const errorMessage = document.getElementById('error-message') as HTMLParagraphElement;
 
-// --- State ---
-let imageFile: File | null = null;
-let imageBase64: string | null = null;
 
-// --- Gemini AI Initialization ---
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// --- State Management ---
+let selectedFile: File | null = null;
 
-// --- Loading Messages ---
-const loadingMessages = [
-  "Warming up the animation engine...",
-  "Teaching the pixels to dance...",
-  "Composing a visual symphony...",
-  "Rendering your masterpiece...",
-  "Adding a touch of magic...",
-  "Almost there, just polishing the frames...",
-];
-let messageInterval: number;
-
-// --- Functions ---
-
+// --- Helper Functions ---
 /**
  * Converts a File object to a base64 encoded string.
+ * @param file The file to convert.
+ * @returns A promise that resolves with the base64 string.
  */
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onerror = error => reject(error);
     reader.readAsDataURL(file);
-    reader.onload = () => {
-      // Result is `data:mime/type;base64,the-base-64-string`
-      // We need to strip the prefix
-      const encoded = reader.result as string;
-      resolve(encoded.split(',')[1]);
-    };
-    reader.onerror = (error) => reject(error);
   });
 }
 
 /**
- * Updates the UI and state when an image is selected.
+ * Updates the UI to show/hide elements.
+ * @param isLoading - Whether the app is in a loading state.
+ * @param error - An optional error message to display.
  */
-async function handleImageUpload(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-
-  if (file) {
-    imageFile = file;
-
-    // Show preview
-    imagePreview.src = URL.createObjectURL(file);
-    imagePreview.classList.remove('hidden');
-    uploadPlaceholder.classList.add('hidden');
-
-    // Convert to base64 for the API
-    try {
-      imageBase64 = await fileToBase64(file);
-    } catch (error) {
-      console.error("Error converting file to base64:", error);
-      alert("There was an error processing your image. Please try again.");
-      resetUploader();
-      return;
-    }
-    
-    updateAnimateButtonState();
-  }
-}
-
-/**
- * Resets the image uploader to its initial state.
- */
-function resetUploader() {
-  imageUpload.value = '';
-  imageFile = null;
-  imageBase64 = null;
-  imagePreview.src = '#';
-  imagePreview.classList.add('hidden');
-  uploadPlaceholder.classList.remove('hidden');
-  updateAnimateButtonState();
-}
-
-/**
- * Enables or disables the animate button based on whether an image and prompt are present.
- */
-function updateAnimateButtonState() {
-  const hasImage = !!imageFile;
-  const hasPrompt = promptInput.value.trim().length > 0;
-  animateBtn.disabled = !(hasImage && hasPrompt);
-}
-
-/**
- * Shows the loader with cycling messages.
- */
-function showLoader() {
-  let messageIndex = 0;
-  loaderMessage.textContent = loadingMessages[messageIndex];
-  loader.classList.remove('hidden');
-
-  messageInterval = window.setInterval(() => {
-    messageIndex = (messageIndex + 1) % loadingMessages.length;
-    loaderMessage.textContent = loadingMessages[messageIndex];
-  }, 4000);
-}
-
-/**
- * Hides the loader and stops the message cycling.
- */
-function hideLoader() {
-  loader.classList.add('hidden');
-  clearInterval(messageInterval);
-}
-
-/**
- * Main function to call the Gemini API and handle the video generation process.
- */
-async function animateImage() {
-  if (!imageBase64 || !imageFile || !promptInput.value.trim()) {
-    alert("Please upload an image and provide an animation prompt.");
-    return;
-  }
-
-  showLoader();
-  resultContainer.classList.add('hidden');
-
-  try {
-    let operation = await ai.models.generateVideos({
-      model: 'veo-2.0-generate-001',
-      prompt: promptInput.value.trim(),
-      image: {
-        imageBytes: imageBase64,
-        mimeType: imageFile.type,
-      },
-      config: {
-        numberOfVideos: 1,
-      },
-    });
-
-    // Poll for the result
-    while (!operation.done) {
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      operation = await ai.operations.getVideosOperation({ operation: operation });
-    }
-    
-    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-    
-    if (!downloadLink) {
-        throw new Error("Video generation failed or returned no URI.");
-    }
-    
-    // The response.body contains the MP4 bytes. You must append an API key when fetching from the download link.
-    const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch video: ${response.statusText}`);
-    }
-    
-    const videoBlob = await response.blob();
-    const videoUrl = URL.createObjectURL(videoBlob);
-
-    // Display the result
-    resultVideo.src = videoUrl;
-    downloadBtn.href = videoUrl;
-    resultContainer.classList.remove('hidden');
-
-  } catch (error) {
-    console.error("Animation failed:", error);
-    alert(`An error occurred during animation: ${error instanceof Error ? error.message : String(error)}`);
-  } finally {
-    hideLoader();
+function updateUI(isLoading: boolean, error?: string) {
+  loader.style.display = isLoading ? 'block' : 'none';
+  applyButton.disabled = isLoading || !selectedFile;
+  
+  if (error) {
+    errorMessage.textContent = `Error: ${error}`;
+    errorMessage.style.display = 'block';
+  } else {
+    errorMessage.style.display = 'none';
   }
 }
 
 // --- Event Listeners ---
-imageUpload.addEventListener('change', handleImageUpload);
-promptInput.addEventListener('input', updateAnimateButtonState);
-animateBtn.addEventListener('click', animateImage);
-
-// Drag and Drop functionality
-const uploadLabel = imageUpload.parentElement as HTMLLabelElement;
-
-if (uploadLabel) {
-  uploadLabel.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    uploadLabel.classList.add('dragging');
-  });
-
-  uploadLabel.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    uploadLabel.classList.remove('dragging');
-  });
-
-  uploadLabel.addEventListener('drop', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    uploadLabel.classList.remove('dragging');
+fileInput.addEventListener('change', (event) => {
+  const files = (event.target as HTMLInputElement).files;
+  if (files && files.length > 0) {
+    selectedFile = files[0];
     
-    const files = e.dataTransfer?.files;
-    if (files && files.length > 0) {
-      imageUpload.files = files;
-      // Manually trigger the change event
-      const changeEvent = new Event('change');
-      imageUpload.dispatchEvent(changeEvent);
-    }
-  });
-}
+    // Display the selected image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      originalImage.src = e.target?.result as string;
+      originalImage.style.display = 'block';
+      originalPlaceholder.style.display = 'none';
+    };
+    reader.readAsDataURL(selectedFile);
 
-export {};
+    // Reset edited image view
+    editedImage.src = '#';
+    editedImage.style.display = 'none';
+    editedPlaceholder.style.display = 'block';
+
+    applyButton.disabled = false;
+    errorMessage.style.display = 'none';
+  }
+});
+
+applyButton.addEventListener('click', async () => {
+  if (!selectedFile) {
+    updateUI(false, "Please select an image first.");
+    return;
+  }
+
+  updateUI(true);
+
+  try {
+    const base64Image = await fileToBase64(selectedFile);
+    
+    const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image-preview',
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              data: base64Image,
+              mimeType: selectedFile.type,
+            },
+          },
+          {
+            text: 'Put a Pakistan army uniform on the person in this image. Ensure the result is a high-quality, realistic photo.',
+          },
+        ],
+      },
+      config: {
+        responseModalities: [Modality.IMAGE, Modality.TEXT],
+      },
+    });
+
+    let imageFound = false;
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        const editedBase64 = part.inlineData.data;
+        editedImage.src = `data:${part.inlineData.mimeType};base64,${editedBase64}`;
+        editedImage.style.display = 'block';
+        editedPlaceholder.style.display = 'none';
+        imageFound = true;
+        break; 
+      }
+    }
+    if (!imageFound) {
+      throw new Error("The AI did not return an image. It might have been unable to process the request. Please try a different image.");
+    }
+
+  } catch (error) {
+    console.error(error);
+    const message = error instanceof Error ? error.message : "An unknown error occurred.";
+    updateUI(false, message);
+  } finally {
+    updateUI(false);
+  }
+});

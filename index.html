@@ -1,55 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Image Animator</title>
-    <link rel="stylesheet" href="index.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/genai": "https://esm.run/@google/genai"
-        }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Master Saad Thahim</title>
+  <link rel="stylesheet" href="index.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.sh/@google/genai@^0.14.0"
       }
-    </script>
-  <link rel="stylesheet" href="/index.css">
+    }
+  </script>
+<link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <main>
-      <h1>Image Animator</h1>
-      <p class="description">Bring your static images to life! Upload an image, describe the animation you want to see, and let AI work its magic.</p>
-      
-      <div class="card">
-        <div id="upload-container">
-          <label for="image-upload" class="upload-label">
-            <img id="image-preview" src="#" alt="Image preview" class="hidden" />
-            <div id="upload-placeholder">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
-              <span>Click to upload or drag & drop</span>
-            </div>
-          </label>
-          <input type="file" id="image-upload" accept="image/png, image/jpeg" />
-        </div>
+<body>
+  <main>
+    <h1>AI Uniform Editor</h1>
+    <p>Upload a photo of a person, and the AI will add a Pakistan army uniform.</p>
 
-        <textarea id="prompt-input" rows="3" placeholder="e.g., 'Make the clouds move', 'A gentle breeze through the trees', 'The person waves at the camera'"></textarea>
-
-        <button id="animate-btn" disabled>Animate Image</button>
-      </div>
-
-      <div id="result-container" class="hidden">
-        <h2>Your Animated Image</h2>
-        <div class="video-wrapper">
-          <video id="result-video" controls autoplay loop muted playsinline></video>
-        </div>
-        <a id="download-btn" class="button" href="#" download="animated-image.mp4">Download Video</a>
-      </div>
-    </main>
-
-    <div id="loader" class="hidden">
-      <div class="spinner"></div>
-      <p id="loader-message">Preparing your animation...</p>
+    <div class="controls">
+      <label for="file-upload" class="custom-file-upload">
+        Choose Image
+      </label>
+      <input id="file-upload" type="file" accept="image/*"/>
+      <button id="apply-button" disabled aria-label="Add uniform to the uploaded image">Add Uniform</button>
     </div>
 
-    <script type="module" src="/index.tsx"></script>
-  </body>
-</htmhtm>g
+    <div id="loader" class="loader" style="display: none;" role="status" aria-live="polite">
+      <span class="sr-only">Processing...</span>
+    </div>
+
+    <p id="error-message" class="error-message" style="display: none;" aria-live="assertive"></p>
+
+    <div class="image-gallery">
+      <div class="image-container">
+        <h2>Original</h2>
+        <div class="image-content">
+          <img id="original-image" src="#" alt="Original user upload" style="display: none;"/>
+          <p id="original-placeholder" class="placeholder-text">Your image will appear here</p>
+        </div>
+      </div>
+      <div class="image-container">
+        <h2>Edited</h2>
+         <div class="image-content">
+          <img id="edited-image" src="#" alt="Image edited by AI with a uniform" style="display: none;"/>
+          <p id="edited-placeholder" class="placeholder-text">The edited image will appear here</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
