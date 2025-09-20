@@ -15,7 +15,6 @@ const downloadButton = document.getElementById('download-button') as HTMLAnchorE
 const loader = document.getElementById('loader') as HTMLDivElement;
 const errorMessage = document.getElementById('error-message') as HTMLParagraphElement;
 const contextRadios = document.querySelectorAll('input[name="context"]') as NodeListOf<HTMLInputElement>;
-const textInputContainer = document.getElementById('text-input-container') as HTMLDivElement;
 const promptInput = document.getElementById('prompt-input') as HTMLInputElement;
 
 
@@ -43,19 +42,8 @@ function fileToBase64(file: File): Promise<string> {
  * Checks conditions and updates the disabled state of the apply button.
  */
 function updateButtonState() {
-  const isTextInputRequired = selectedContext === 'celebrity' || selectedContext === 'background';
   const isTextInputFilled = promptInput.value.trim() !== '';
-
-  if (!selectedFile) {
-    applyButton.disabled = true;
-    return;
-  }
-  
-  if (isTextInputRequired && !isTextInputFilled) {
-    applyButton.disabled = true;
-  } else {
-    applyButton.disabled = false;
-  }
+  applyButton.disabled = !selectedFile || !isTextInputFilled;
 }
 
 /**
@@ -109,15 +97,18 @@ fileInput.addEventListener('change', (event) => {
 contextRadios.forEach(radio => {
   radio.addEventListener('change', () => {
     selectedContext = radio.value as 'clothes' | 'celebrity' | 'background';
+    promptInput.value = ''; // Clear input on context change
 
-    if (selectedContext === 'celebrity' || selectedContext === 'background') {
-      textInputContainer.style.display = 'block';
-      promptInput.placeholder = selectedContext === 'celebrity' 
-        ? 'Enter celebrity name...' 
-        : 'Describe the background...';
-      promptInput.value = ''; // Clear previous input
-    } else {
-      textInputContainer.style.display = 'none';
+    switch (selectedContext) {
+      case 'clothes':
+        promptInput.placeholder = 'Describe the clothing...';
+        break;
+      case 'celebrity':
+        promptInput.placeholder = 'Enter celebrity name...';
+        break;
+      case 'background':
+        promptInput.placeholder = 'Describe the background...';
+        break;
     }
     updateButtonState();
   });
@@ -148,13 +139,13 @@ applyButton.addEventListener('click', async () => {
 
     switch (selectedContext) {
       case 'clothes':
-        promptText = 'Put a Pakistan army uniform on the person in this image, treating the uniform as clothing for a catalog or display. Ensure the result is a high-quality, realistic photo.';
+        promptText = `Change the clothes of the person in the image to be: ${inputValue}. Ensure the result is a high-quality, realistic photo.`;
         break;
       case 'celebrity':
-        promptText = `Put a Pakistan army uniform on the person in this image, and change their face to look like ${inputValue}. Ensure the result is a high-quality, realistic photo as if for a photoshoot.`;
+        promptText = `Add the celebrity "${inputValue}" standing next to the person in this image. Do not change the original person. The result should be a high-quality, realistic photo.`;
         break;
       case 'background':
-        promptText = `Put a Pakistan army uniform on the person in this image, and change the background to: ${inputValue}. Ensure the person and uniform remain realistic and well-integrated.`;
+        promptText = `Change only the background of this image to: ${inputValue}. Do not change the person or their clothes. The result should be a high-quality, realistic photo.`;
         break;
     }
 

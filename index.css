@@ -17,8 +17,9 @@ body {
     margin: 0;
     padding: 20px;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     min-height: 100vh;
 }
 
@@ -278,4 +279,19 @@ input[type="file"] {
   border-radius: 8px;
   margin-top: 20px;
   display: inline-block;
+}
+
+/* --- Footer --- */
+footer {
+    padding: 40px 20px;
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+
+.footer-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--surface-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
